@@ -1,0 +1,17 @@
+:root {
+  --rows: 18;
+  --col: 25;
+
+  --outer-box-width: 70vw;
+  --outer-box-height: 80vh;
+}
+
+.outer__box {
+  width: var(--outer-box-width);
+  height: var(--outer-box-height);
+}
+
+.box {
+  width: calc(var(--outer-box-width) / var(--col));
+  height: calc(var(--outer-box-height) / var(--rows));
+}
