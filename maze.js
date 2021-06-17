@@ -1,16 +1,26 @@
+/**
+ * Represents each Cell of the Grid
+ */
 class Cell {
   constructor(row, col) {
+    //  row and col of the cell
     this.row = row;
     this.col = col;
 
+    // boders visibble of the cell
     this.borderLeft = true;
     this.borderRight = true;
     this.borderTop = true;
     this.borderBottom = true;
 
+    // for algorithm
     this.visited = false;
   }
 
+  /**
+   * sleep for certain amount of time to execute
+   * @param ms -> no of millisecond to sleep
+   */
   $sleep(ms) {
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
@@ -20,23 +30,40 @@ class Cell {
     });
   }
 
+  /**
+   * create the cell on DOM
+   * @param element -> element to append the cell
+   */
   create(element) {
     const cell = document.createElement("div");
     cell.className = "box border-2 border-gray-900";
     cell.id = `${this.row}__${this.col}`;
+    // initially hiding the cell
+    cell.style.display = "none";
     element.appendChild(cell);
   }
 
+  /**
+   * update the cell borders on DOM
+   */
   async draw() {
-    await this.$sleep(this.row * this.col * 10);
+    await this.$sleep(this.row * this.col * 5);
     const element = document.getElementById(`${this.row}__${this.col}`);
+    element.style.display = "block";
     if (!this.borderLeft) element.classList.add("border-l-0");
     if (!this.borderRight) element.classList.add("border-r-0");
     if (!this.borderTop) element.classList.add("border-t-0");
     if (!this.borderBottom) element.classList.add("border-b-0");
   }
 
-  getNeighbors(grid, ROWS, COLS) {
+  /**
+   * calculate the neighbors of given cell
+   * @param grid -> whole grid 2D array
+   */
+  calcNeighbors(grid) {
+    const ROWS = grid.length;
+    const COLS = grid[0].length;
+
     const neighbors = [];
     // left
     if (this.col > 0) neighbors.push(grid[this.row][this.col - 1]);
@@ -49,6 +76,9 @@ class Cell {
     this.neighbors = neighbors;
   }
 
+  /**
+   * getting a random unvisited neighbor
+   */
   getRandomNeighbor() {
     const randomIndex = Math.floor(Math.random() * this.neighbors.length);
     if (
@@ -59,6 +89,10 @@ class Cell {
     return this.getRandomNeighbor();
   }
 
+  /**
+   * remove the common wall between the current and given cell
+   * @param cell -> cell to remove the common wall
+   */
   removeWall(cell) {
     //   left
     if (this.row === cell.row && this.col === cell.col + 1) {

@@ -7,6 +7,7 @@ const END = [ROWS - 1, COLS - 1];
 // DOM manipulation variables
 const outerBox = document.querySelector(".outer__box");
 
+// varaibles related to game logic
 const grid = [];
 
 /**
@@ -24,6 +25,7 @@ function init() {
         .fill(0)
         .forEach((_, colIndex) => {
           const cell = new Cell(rowIndex, colIndex);
+          // adding cell to DOM
           cell.create(row);
           grid[rowIndex].push(cell);
         });
@@ -32,6 +34,9 @@ function init() {
     });
 }
 
+/**
+ * Creates a Maze with DFS algorithm
+ */
 function createMaze() {
   const stack = [];
   const [startX, startY] = START;
@@ -45,8 +50,8 @@ function createMaze() {
   // While the stack is not empty
   while (stack.length != 0) {
     const current = stack.pop();
-    // getting all neighbors of the current cell
-    current.getNeighbors(grid, ROWS, COLS);
+    // calculating all neighbors of the current cell
+    current.calcNeighbors(grid, ROWS, COLS);
     // if current cell has unvisited neighbors
     if (current.neighbors.some((neighbor) => !neighbor.visited)) {
       stack.push(current);
@@ -60,6 +65,9 @@ function createMaze() {
   }
 }
 
+/**
+ * Update cell borders
+ */
 function drawGrid() {
   grid.forEach((row) => {
     row.forEach((cell) => {
@@ -69,6 +77,8 @@ function drawGrid() {
 }
 
 // Initialize the grid on DOM for the first time
+// Creating the Maze using DFS
+// Drawing the Maze on to the DOM
 init();
 createMaze();
 drawGrid();
