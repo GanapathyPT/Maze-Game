@@ -1,6 +1,12 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 :root {
-  --rows: 18;
-  --col: 25;
+  --rows: 20;
+  --col: 35;
 
   --outer-box-width: 70vw;
   --outer-box-height: 80vh;
