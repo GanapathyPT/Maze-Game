@@ -39,7 +39,7 @@ class Cell {
     cell.className = "box border-2 border-gray-900";
     cell.id = `${this.row}__${this.col}`;
     // initially hiding the cell
-    cell.style.display = "none";
+    cell.style.opacity = 0;
     element.appendChild(cell);
   }
 
@@ -47,9 +47,9 @@ class Cell {
    * update the cell borders on DOM
    */
   async draw() {
-    await this.$sleep(this.row * this.col * 5);
+    await this.$sleep(Math.floor(Math.random() * 1000) + 1);
     const element = document.getElementById(`${this.row}__${this.col}`);
-    element.style.display = "block";
+    element.style.opacity = 1;
     if (!this.borderLeft) element.classList.add("border-l-0");
     if (!this.borderRight) element.classList.add("border-r-0");
     if (!this.borderTop) element.classList.add("border-t-0");
@@ -87,6 +87,31 @@ class Cell {
     )
       return this.neighbors[randomIndex];
     return this.getRandomNeighbor();
+  }
+
+  checkValidNeighbor(cell) {
+    if (!this.borderTop) {
+      if (this.row === cell.row + 1 && this.col === cell.col) {
+        return true;
+      }
+    }
+    if (!this.borderLeft) {
+      if (this.row === cell.row && this.col === cell.col + 1) {
+        return true;
+      }
+    }
+    if (!this.borderRight) {
+      if (this.row === cell.row && this.col === cell.col - 1) {
+        return true;
+      }
+    }
+    if (!this.borderBottom) {
+      if (this.row === cell.row - 1 && this.col === cell.col) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**

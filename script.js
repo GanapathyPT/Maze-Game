@@ -1,8 +1,8 @@
 // no of rows and cols of the grid
 const ROWS = 20;
 const COLS = 35;
-const START = [0, 0];
-const END = [ROWS - 1, COLS - 1];
+const START = [Math.floor(Math.random() * ROWS), 0];
+const END = [Math.floor(Math.random() * ROWS), COLS - 1];
 
 // DOM manipulation variables
 const outerBox = document.querySelector(".outer__box");
@@ -82,3 +82,48 @@ function drawGrid() {
 init();
 createMaze();
 drawGrid();
+
+let drawing = false;
+let lastVisitedCell = null;
+const visitedCells = [];
+
+window.addEventListener("mousedown", () => {
+  drawing = !drawing;
+});
+
+window.addEventListener("mousemove", (e) => {
+  // do nothing is drawing doesn't start
+  if (!drawing) return;
+
+  const x = e.pageX;
+  const y = e.pageY;
+  element = document.elementFromPoint(x, y);
+
+  // if not cell do nothing
+  if (!element.id.includes("__")) return;
+
+  const [row, col] = element.id.split("__");
+  const cell = grid[row][col];
+
+  // for first cell clicked
+  if (lastVisitedCell === null && cell === grid[START[0]][START[1]]) {
+    lastVisitedCell = cell;
+    visitedCells.push(cell);
+    element.classList.add("bg-blue-400");
+    return;
+  }
+
+  // if the  cell is already visited do nothing
+  if (visitedCells.includes(cell)) return;
+
+  cell.calcNeighbors(grid);
+
+  if (!cell.neighbors.includes(lastVisitedCell)) return;
+
+  if (cell.checkValidNeighbor(lastVisitedCell)) {
+    element.classList.add("bg-blue-400");
+
+    lastVisitedCell = cell;
+    visitedCells.push(cell);
+  }
+});
