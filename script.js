@@ -6,6 +6,9 @@ const END = [Math.floor(Math.random() * ROWS), COLS - 1];
 
 // DOM manipulation variables
 const outerBox = document.querySelector(".outer__box");
+const model = document.getElementById("model");
+const modelText = document.getElementById("modelText");
+const restartBtn = document.getElementById("restart");
 
 // varaibles related to game logic
 const grid = [];
@@ -14,6 +17,9 @@ const grid = [];
  * Initialize the grid (creates the grid in DOM)
  */
 function init() {
+  document.documentElement.style.setProperty("--rows", ROWS)
+  document.documentElement.style.setProperty("--cols", COLS)
+
   Array(ROWS)
     .fill(0)
     .forEach((_, rowIndex) => {
@@ -41,6 +47,29 @@ function createMaze() {
   const stack = [];
   const [startX, startY] = START;
   const [endX, endY] = END;
+
+  const startCell = document.getElementById(`${startX}__${startY}`);
+  const startRect = startCell.getBoundingClientRect();
+
+  const startEndClasses = "fixed text-3xl font-semibold text-white";
+
+  const startElement = document.createElement("p");
+  startElement.innerText = "START 🐇";
+  startElement.className = startEndClasses;
+  startElement.style.top = `calc(${startRect.top}px - .5rem)`;
+  startElement.style.left = `calc(${startRect.left}px - 10rem)`;
+  document.body.appendChild(startElement);
+
+  const endCell = document.getElementById(`${endX}__${endY}`);
+  const endRect = endCell.getBoundingClientRect();
+
+  const endElement = document.createElement("p");
+  endElement.innerText = "FINISH 🏁";
+  endElement.className = startEndClasses;
+  endElement.style.top = `calc(${endRect.top}px - .5rem)`;
+  endElement.style.left = `calc(${endRect.left}px + 3rem)`;
+  document.body.appendChild(endElement);
+
   // Choose the initial cell, mark it as visited
   grid[startX][startY].visited = true;
   grid[startX][startY].borderLeft = false;
@@ -83,25 +112,36 @@ init();
 createMaze();
 drawGrid();
 
-let drawing = false;
+restartBtn.addEventListener("click", () => {
+  window.location.reload();
+})
+
+// last cell visited in the path
 let lastVisitedCell = null;
+// list of all visited cells
 const visitedCells = [];
+// var to check if game is over or not
+let gameOver = false;
 
-window.addEventListener("mousedown", () => {
-  drawing = !drawing;
-});
+const boxBGColor = "bg-purple-900";
 
+/**
+ * on mouse move showing the path
+ */
 window.addEventListener("mousemove", (e) => {
-  // do nothing is drawing doesn't start
-  if (!drawing) return;
+  // game is over do nothing
+  if (gameOver) return
 
+  // x and y positions acording to page width and height
   const x = e.pageX;
   const y = e.pageY;
-  element = document.elementFromPoint(x, y);
+  // element the current pointer is locating
+  const element = document.elementFromPoint(x, y);
 
   // if not cell do nothing
   if (!element.id.includes("__")) return;
 
+  // getting the elements row and col value and with that getting its cell object
   const [row, col] = element.id.split("__");
   const cell = grid[row][col];
 
@@ -109,21 +149,48 @@ window.addEventListener("mousemove", (e) => {
   if (lastVisitedCell === null && cell === grid[START[0]][START[1]]) {
     lastVisitedCell = cell;
     visitedCells.push(cell);
-    element.classList.add("bg-blue-400");
+    element.classList.add(boxBGColor);
     return;
   }
 
   // if the  cell is already visited do nothing
   if (visitedCells.includes(cell)) return;
 
+  // calculating the cells neighbors (optional)
   cell.calcNeighbors(grid);
 
+  // if it is already visited do nothing
   if (!cell.neighbors.includes(lastVisitedCell)) return;
 
-  if (cell.checkValidNeighbor(lastVisitedCell)) {
-    element.classList.add("bg-blue-400");
+  // cell.neighbors.forEach(neighbor => {
+  //   const validNeighbors = []
+  //   if (neighbor.checkValidNeighbor(cell))
+  //     validNeighbors.push(neighbor)
 
+  //   if (validNeighbors.some(ng => visitedCells.includes(ng))) {
+  //     outerBox.classList.add("overlay");
+  //     modelText.innerText = "You Lost"
+  //     model.classList.remove("hidden")
+  //     gameOver = true;
+  //   }
+  // })
+
+  // gameover will be changed if there is no valid moves
+  if (gameOver) return
+
+  // if it is valid cell according to last visited cell then proceed
+  if (cell.checkValidNeighbor(lastVisitedCell)) {
+    element.classList.add(boxBGColor);
+
+    // changing the last visited cell as current cell and adding it to visited cells array
     lastVisitedCell = cell;
     visitedCells.push(cell);
+
+    if (cell === grid[END[0]][END[1]]) {
+      outerBox.classList.add("overlay")
+      modelText.innerText = "You Won"
+      model.classList.remove("hidden")
+      gameOver = true;
+    }
   }
 });

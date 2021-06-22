@@ -36,7 +36,7 @@ class Cell {
    */
   create(element) {
     const cell = document.createElement("div");
-    cell.className = "box border-2 border-gray-900";
+    cell.className = "box border-2 border-white transition-colors";
     cell.id = `${this.row}__${this.col}`;
     // initially hiding the cell
     cell.style.opacity = 0;

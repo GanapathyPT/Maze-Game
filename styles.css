@@ -5,9 +5,6 @@
 }
 
 :root {
-  --rows: 20;
-  --col: 35;
-
   --outer-box-width: 70vw;
   --outer-box-height: 80vh;
 }
@@ -18,6 +15,20 @@
 }
 
 .box {
-  width: calc(var(--outer-box-width) / var(--col));
+  width: calc(var(--outer-box-width) / var(--cols));
   height: calc(var(--outer-box-height) / var(--rows));
+}
+
+.overlay {
+  position: absolute;
+}
+
+.overlay::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0, .7);
 }
