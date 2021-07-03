@@ -1,52 +1,50 @@
 /**
  * Represents each Cell of the Grid
  */
-class Cell {
-  constructor(row, col) {
-    //  row and col of the cell
-    this.row = row;
-    this.col = col;
+function Cell(row, col) {
+  //  row and col of the cell
+  this.row = row;
+  this.col = col;
 
-    // boders visibble of the cell
-    this.borderLeft = true;
-    this.borderRight = true;
-    this.borderTop = true;
-    this.borderBottom = true;
+  // boders visibble of the cell
+  this.borderLeft = true;
+  this.borderRight = true;
+  this.borderTop = true;
+  this.borderBottom = true;
 
-    // for algorithm
-    this.visited = false;
-  }
+  // for algorithm
+  this.visited = false;
 
   /**
    * sleep for certain amount of time to execute
    * @param ms -> no of millisecond to sleep
    */
-  $sleep(ms) {
+  this.$sleep = function (ms) {
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
         clearTimeout(timeout);
         resolve();
       }, ms);
     });
-  }
+  };
 
   /**
    * create the cell on DOM
    * @param element -> element to append the cell
    */
-  create(element) {
+  this.create = function (element) {
     const cell = document.createElement("div");
     cell.className = "box border-2 border-white transition-colors";
     cell.id = `${this.row}__${this.col}`;
     // initially hiding the cell
     cell.style.opacity = 0;
     element.appendChild(cell);
-  }
+  };
 
   /**
    * update the cell borders on DOM
    */
-  async draw() {
+  this.draw = async function () {
     await this.$sleep(Math.floor(Math.random() * 1000) + 1);
     const element = document.getElementById(`${this.row}__${this.col}`);
     element.style.opacity = 1;
@@ -54,13 +52,13 @@ class Cell {
     if (!this.borderRight) element.classList.add("border-r-0");
     if (!this.borderTop) element.classList.add("border-t-0");
     if (!this.borderBottom) element.classList.add("border-b-0");
-  }
+  };
 
   /**
    * calculate the neighbors of given cell
    * @param grid -> whole grid 2D array
    */
-  calcNeighbors(grid) {
+  this.calcNeighbors = function (grid) {
     const ROWS = grid.length;
     const COLS = grid[0].length;
 
@@ -74,12 +72,12 @@ class Cell {
     // bottom
     if (this.row < ROWS - 1) neighbors.push(grid[this.row + 1][this.col]);
     this.neighbors = neighbors;
-  }
+  };
 
   /**
    * getting a random unvisited neighbor
    */
-  getRandomNeighbor() {
+  this.getRandomNeighbor = function () {
     const randomIndex = Math.floor(Math.random() * this.neighbors.length);
     if (
       this.neighbors.some((neighbor) => !neighbor.visited) &&
@@ -87,9 +85,9 @@ class Cell {
     )
       return this.neighbors[randomIndex];
     return this.getRandomNeighbor();
-  }
+  };
 
-  checkValidNeighbor(cell) {
+  this.checkValidNeighbor = function (cell) {
     if (!this.borderTop) {
       if (this.row === cell.row + 1 && this.col === cell.col) {
         return true;
@@ -112,13 +110,13 @@ class Cell {
     }
 
     return false;
-  }
+  };
 
   /**
    * remove the common wall between the current and given cell
    * @param cell -> cell to remove the common wall
    */
-  removeWall(cell) {
+  this.removeWall = function (cell) {
     //   left
     if (this.row === cell.row && this.col === cell.col + 1) {
       this.borderLeft = false;
@@ -139,5 +137,5 @@ class Cell {
       this.borderBottom = false;
       cell.borderTop = false;
     }
-  }
+  };
 }

@@ -1,24 +1,24 @@
 // no of rows and cols of the grid
 const ROWS = 20;
 const COLS = 35;
-const START = [Math.floor(Math.random() * ROWS), 0];
-const END = [Math.floor(Math.random() * ROWS), COLS - 1];
 
 // DOM manipulation variables
 const outerBox = document.querySelector(".outer__box");
 const model = document.getElementById("model");
 const modelText = document.getElementById("modelText");
 const restartBtn = document.getElementById("restart");
+const tutorial = document.getElementById("tutorial");
 
-// varaibles related to game logic
-const grid = [];
+const boxBGColor = "bg-purple-900";
 
 /**
  * Initialize the grid (creates the grid in DOM)
  */
-function init() {
-  document.documentElement.style.setProperty("--rows", ROWS)
-  document.documentElement.style.setProperty("--cols", COLS)
+function createGrid() {
+  // varaibles related to game logic
+  const grid = [];
+  document.documentElement.style.setProperty("--rows", ROWS);
+  document.documentElement.style.setProperty("--cols", COLS);
 
   Array(ROWS)
     .fill(0)
@@ -38,15 +38,19 @@ function init() {
 
       outerBox.appendChild(row);
     });
+
+  return grid;
 }
 
 /**
  * Creates a Maze with DFS algorithm
  */
-function createMaze() {
+function createMaze(grid) {
   const stack = [];
-  const [startX, startY] = START;
-  const [endX, endY] = END;
+  const [startX, startY] = [Math.floor(Math.random() * ROWS), 0];
+  const [endX, endY] = [Math.floor(Math.random() * ROWS), COLS - 1];
+  START = [startX, startY];
+  END = [endX, endY];
 
   const startCell = document.getElementById(`${startX}__${startY}`);
   const startRect = startCell.getBoundingClientRect();
@@ -55,6 +59,7 @@ function createMaze() {
 
   const startElement = document.createElement("p");
   startElement.innerText = "START 🐇";
+  startElement.id = "gameStart";
   startElement.className = startEndClasses;
   startElement.style.top = `calc(${startRect.top}px - .5rem)`;
   startElement.style.left = `calc(${startRect.left}px - 10rem)`;
@@ -65,6 +70,7 @@ function createMaze() {
 
   const endElement = document.createElement("p");
   endElement.innerText = "FINISH 🏁";
+  endElement.id = "gameFinish";
   endElement.className = startEndClasses;
   endElement.style.top = `calc(${endRect.top}px - .5rem)`;
   endElement.style.left = `calc(${endRect.left}px + 3rem)`;
@@ -92,12 +98,23 @@ function createMaze() {
       stack.push(randomNeighbor);
     }
   }
+
+  return {
+    start: [startX, startY],
+    end: [endX, endY],
+  };
 }
+
+const removeMaze = () => {
+  outerBox.innerHTML = "";
+  document.getElementById("gameStart").remove();
+  document.getElementById("gameFinish").remove();
+};
 
 /**
  * Update cell borders
  */
-function drawGrid() {
+function drawGrid(grid) {
   grid.forEach((row) => {
     row.forEach((cell) => {
       cell.draw();
@@ -105,16 +122,23 @@ function drawGrid() {
   });
 }
 
-// Initialize the grid on DOM for the first time
-// Creating the Maze using DFS
-// Drawing the Maze on to the DOM
-init();
-createMaze();
-drawGrid();
+let listener;
+// init function
+const init = () => {
+  const grid = createGrid();
+  const { start, end } = createMaze(grid);
+  drawGrid(grid);
+  listener = window.addEventListener("mousemove", (e) =>
+    mouseMoveListener(e, grid, start, end)
+  );
 
-restartBtn.addEventListener("click", () => {
-  window.location.reload();
-})
+  outerBox.classList.add("overlay");
+  setTimeout(() => {
+    outerBox.classList.remove("overlay");
+    tutorial.classList.add("hidden");
+  }, 2000);
+};
+init();
 
 // last cell visited in the path
 let lastVisitedCell = null;
@@ -123,14 +147,35 @@ const visitedCells = [];
 // var to check if game is over or not
 let gameOver = false;
 
-const boxBGColor = "bg-purple-900";
+const restartGame = () => {
+  window.removeEventListener("mousemove", listener);
+  removeMaze();
+  const grid = createGrid();
+  const { start, end } = createMaze(grid);
+  drawGrid(grid);
+
+  outerBox.classList.remove("overlay");
+  modelText.innerText = "";
+  model.classList.add("hidden");
+  lastVisitedCell = null;
+  visitedCells.length = 0;
+  gameOver = false;
+
+  listener = window.addEventListener("mousemove", (e) =>
+    mouseMoveListener(e, grid, start, end)
+  );
+};
+restartBtn.addEventListener("click", restartGame);
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Enter") restartGame();
+});
 
 /**
  * on mouse move showing the path
  */
-window.addEventListener("mousemove", (e) => {
+function mouseMoveListener(e, grid, start, end) {
   // game is over do nothing
-  if (gameOver) return
+  if (gameOver) return;
 
   // x and y positions acording to page width and height
   const x = e.pageX;
@@ -146,7 +191,7 @@ window.addEventListener("mousemove", (e) => {
   const cell = grid[row][col];
 
   // for first cell clicked
-  if (lastVisitedCell === null && cell === grid[START[0]][START[1]]) {
+  if (lastVisitedCell === null && cell === grid[start[0]][start[1]]) {
     lastVisitedCell = cell;
     visitedCells.push(cell);
     element.classList.add(boxBGColor);
@@ -162,21 +207,8 @@ window.addEventListener("mousemove", (e) => {
   // if it is already visited do nothing
   if (!cell.neighbors.includes(lastVisitedCell)) return;
 
-  // cell.neighbors.forEach(neighbor => {
-  //   const validNeighbors = []
-  //   if (neighbor.checkValidNeighbor(cell))
-  //     validNeighbors.push(neighbor)
-
-  //   if (validNeighbors.some(ng => visitedCells.includes(ng))) {
-  //     outerBox.classList.add("overlay");
-  //     modelText.innerText = "You Lost"
-  //     model.classList.remove("hidden")
-  //     gameOver = true;
-  //   }
-  // })
-
   // gameover will be changed if there is no valid moves
-  if (gameOver) return
+  if (gameOver) return;
 
   // if it is valid cell according to last visited cell then proceed
   if (cell.checkValidNeighbor(lastVisitedCell)) {
@@ -186,11 +218,23 @@ window.addEventListener("mousemove", (e) => {
     lastVisitedCell = cell;
     visitedCells.push(cell);
 
-    if (cell === grid[END[0]][END[1]]) {
-      outerBox.classList.add("overlay")
-      modelText.innerText = "You Won"
-      model.classList.remove("hidden")
+    if (cell === grid[end[0]][end[1]]) {
+      outerBox.classList.add("overlay");
+      modelText.innerText = "You Won";
+      model.classList.remove("hidden");
+      gameOver = true;
+    }
+
+    const validNeighbors = [];
+    cell.neighbors.forEach((neighbor) => {
+      if (cell.checkValidNeighbor(neighbor) && !visitedCells.includes(neighbor))
+        validNeighbors.push(neighbor);
+    });
+    if (validNeighbors.length === 0) {
+      outerBox.classList.add("overlay");
+      modelText.innerText = "You Lost";
+      model.classList.remove("hidden");
       gameOver = true;
     }
   }
-});
+}

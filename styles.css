@@ -9,6 +9,17 @@
   --outer-box-height: 80vh;
 }
 
+h1 {
+  font-size: 2.5rem;
+  color: #fff;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  transform: translateX(-50%);
+}
+
 .outer__box {
   width: var(--outer-box-width);
   height: var(--outer-box-height);
@@ -30,5 +41,5 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0, .7);
+  background-color: rgba(0, 0, 0, 0.7);
 }
