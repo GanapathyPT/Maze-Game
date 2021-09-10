@@ -6,10 +6,10 @@ const COLS = 35;
 const outerBox = document.querySelector(".outer__box");
 const model = document.getElementById("model");
 const modelText = document.getElementById("modelText");
-const restartBtn = document.getElementById("restart");
-const tutorial = document.getElementById("tutorial");
+const modelBtn = document.getElementById("modelBtn");
 
 const boxBGColor = "bg-purple-900";
+const MODEL_CLOSE_DELAY = 3000;
 
 /**
  * Initialize the grid (creates the grid in DOM)
@@ -111,6 +111,19 @@ const removeMaze = () => {
   document.getElementById("gameFinish").remove();
 };
 
+const clearPath = () => {
+  Array(ROWS)
+    .fill(0)
+    .forEach((_, rowIndex) => {
+      Array(COLS)
+        .fill(0)
+        .forEach((_, colIndex) => {
+          const element = document.getElementById(`${rowIndex}__${colIndex}`);
+          element.classList.remove(boxBGColor);
+        });
+    });
+};
+
 /**
  * Update cell borders
  */
@@ -125,18 +138,13 @@ function drawGrid(grid) {
 let listener;
 // init function
 const init = () => {
+  openModel("Press Enter to Restart the game", undefined, undefined, true);
   const grid = createGrid();
   const { start, end } = createMaze(grid);
   drawGrid(grid);
   listener = window.addEventListener("mousemove", (e) =>
     mouseMoveListener(e, grid, start, end)
   );
-
-  outerBox.classList.add("overlay");
-  setTimeout(() => {
-    outerBox.classList.remove("overlay");
-    tutorial.classList.add("hidden");
-  }, 2000);
 };
 init();
 
@@ -148,27 +156,20 @@ const visitedCells = [];
 let gameOver = false;
 
 const restartGame = () => {
-  window.removeEventListener("mousemove", listener);
-  removeMaze();
-  const grid = createGrid();
-  const { start, end } = createMaze(grid);
-  drawGrid(grid);
-
-  outerBox.classList.remove("overlay");
-  modelText.innerText = "";
-  model.classList.add("hidden");
   lastVisitedCell = null;
   visitedCells.length = 0;
   gameOver = false;
 
-  listener = window.addEventListener("mousemove", (e) =>
-    mouseMoveListener(e, grid, start, end)
-  );
+  clearPath();
 };
-restartBtn.addEventListener("click", restartGame);
 window.addEventListener("keydown", (e) => {
   if (e.code === "Enter") restartGame();
 });
+
+const createNewGame = () => {
+  window.removeEventListener("mousemove", listener);
+  window.location.reload();
+};
 
 /**
  * on mouse move showing the path
@@ -219,9 +220,7 @@ function mouseMoveListener(e, grid, start, end) {
     visitedCells.push(cell);
 
     if (cell === grid[end[0]][end[1]]) {
-      outerBox.classList.add("overlay");
-      modelText.innerText = "You Won";
-      model.classList.remove("hidden");
+      openModel("You Won", "New Game", createNewGame, false);
       gameOver = true;
     }
 
@@ -231,10 +230,35 @@ function mouseMoveListener(e, grid, start, end) {
         validNeighbors.push(neighbor);
     });
     if (validNeighbors.length === 0) {
-      outerBox.classList.add("overlay");
-      modelText.innerText = "You Lost";
-      model.classList.remove("hidden");
+      openModel("You Lost", "Restart", restartGame, false);
       gameOver = true;
     }
   }
+}
+
+// model related
+function openModel(modelHeading, modelBtnText, modelBtnCallback, close) {
+  if (modelHeading === undefined) return;
+
+  outerBox.classList.add("overlay");
+  modelText.innerText = modelHeading;
+
+  if (modelBtnText === undefined) modelBtn.classList.add("hidden");
+  if (typeof modelBtnCallback === "function")
+    modelBtn.onclick = () => {
+      modelBtnCallback();
+      closeModel();
+    };
+  modelBtn.innerText = modelBtnText;
+
+  model.classList.remove("hidden");
+  if (close) setTimeout(closeModel, MODEL_CLOSE_DELAY);
+}
+
+function closeModel() {
+  modelText.innerText = "";
+  modelBtn.classList.remove("hidden");
+  modelBtn.innerText = "";
+  outerBox.classList.remove("overlay");
+  model.classList.add("hidden");
 }

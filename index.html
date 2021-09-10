@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Maze Game</title>
-    <link
-      href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
 
-  <body>
-    <div class="flex h-screen justify-center items-center bg-current">
-      <h1>MaZe GaMe</h1>
-      <div class="border-0 border-gray-900 outer__box"></div>
-    </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maze Game</title>
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
 
-    <div
-      id="model"
-      class="
+<body>
+  <div class="flex h-screen justify-center items-center bg-current">
+    <h1>MaZe GaMe</h1>
+    <div class="border-0 border-gray-900 outer__box"></div>
+  </div>
+
+  <div id="model" class="
         px-6
         py-3
         shadow-xl
@@ -36,40 +32,14 @@
         bg-black
         rounded
         hidden
-      "
-    >
-      <div id="modelText" class="text-4xl mb-2 text-white"></div>
-      <button
-        id="restart"
-        class="px-3 py-1 bg-purple-900 text-white rounded-lg"
-      >
-        Restart
-      </button>
-    </div>
+      ">
+    <h3 id="modelText" class="text-4xl mb-2 text-white"></h3>
+    <button id="modelBtn" class="px-3 py-1 bg-purple-900 text-white rounded-lg">
+    </button>
+  </div>
 
-    <div
-      id="tutorial"
-      class="
-        px-6
-        py-3
-        shadow-xl
-        flex
-        items-center
-        flex-col
-        max-w-max
-        fixed
-        top-1/2
-        left-1/2
-        transform
-        -translate-x-1/2 -translate-y-1/2
-        bg-black
-        rounded
-      "
-    >
-      <p class="text-xl text-white">press enter to restart</p>
-    </div>
+  <script src="./maze.js" defer></script>
+  <script src="./script.js" defer></script>
+</body>
 
-    <script src="./maze.js" defer></script>
-    <script src="./script.js" defer></script>
-  </body>
 </html>
